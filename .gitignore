@@ -35,6 +35,7 @@ last_version_installer/
 *.selfhost.txt
 
 # Benchmark outputs
+bench/
 bench/build/
 bench/results/
 bench/**/bin/
