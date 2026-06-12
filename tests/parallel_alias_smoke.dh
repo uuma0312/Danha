@@ -1,0 +1,27 @@
+// parallel system(순차 폴백) + import as 별칭 스모크
+import aliasmod as am
+
+component Pos {
+    x: f64
+}
+
+parallel system move_all(dt: f64) {
+    for each (p: &mut Pos) {
+        p.x = p.x + dt
+    }
+}
+
+e1 = spawn()
+add(e1, Pos { x: 1.0 })
+e2 = spawn()
+add(e2, Pos { x: 10.0 })
+
+schedule(0.5)
+schedule(0.5)
+
+for each (p: &Pos) {
+    print(p.x)        // 2, 11
+}
+
+print(am.afn(2))      // 6
+print(am.ACONST)      // 77

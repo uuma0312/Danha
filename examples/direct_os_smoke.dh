@@ -1,0 +1,36 @@
+// direct-os 런타임 스모크 — libc 없이 kernel32만으로 동작해야 함
+// 빌드: danhac.exe examples/direct_os_smoke.dh --runtime direct-os
+
+fn add(a: i64, b: i64) -> i64 {
+    return a + b
+}
+
+fn main_smoke() {
+    print("direct-os smoke start")
+
+    // i64 출력
+    n = add(40, 2)
+    print(n)
+
+    // bool 출력
+    flag = n == 42
+    print(flag)
+
+    // 힙 할당 (동적 배열 = HeapAlloc 경유)
+    xs: [i64] = []
+    i = 0
+    while i < 100 {
+        push(xs, i * 2)
+        i = i + 1
+    }
+    print(len(xs))
+    print(xs[99])
+
+    // 문자열 연결 (힙)
+    s = "hello" + " " + "direct-os"
+    print(s)
+
+    print("direct-os smoke end")
+}
+
+main_smoke()

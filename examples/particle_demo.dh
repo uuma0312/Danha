@@ -1,0 +1,134 @@
+// Stage 82 + 84: 입자 시스템 데모 (글로우 분수).
+//
+// 새 효과:
+// - MSAA 4x 자동 활성 (창 가장자리 매끈)
+// - 소프트 그라데이션 원형 텍스처 (sharp quad 대신 부드러운 빛 점)
+// - Additive blending (입자가 겹치면 밝아짐 — 글로우 룩)
+// - 회전 sprite (각 입자가 자기 각속도로 회전 — 살아있는 느낌)
+//
+// 픽셀 느낌 vs glow 느낌 — 같은 8000 입자라도 분위기가 완전 다름.
+
+import danha_gl
+from ari_sprite import *
+
+PARTICLE_CAP = 8192
+px: [f64] = []
+py: [f64] = []
+pvx: [f64] = []
+pvy: [f64] = []
+pang: [f64] = []           // 현재 회전 각
+pomg: [f64] = []           // 각속도
+plife: [f64] = []
+plife0: [f64] = []         // 초기 life (페이드용)
+psize: [f64] = []
+pr: [f64] = []
+pg: [f64] = []
+pb: [f64] = []
+p_next = 0
+
+if gl_open(900, 600, "Stage 84 Glow Particle Demo") == 0 {
+    print("창 생성 실패")
+} else {
+    gl_vsync(0)
+    soft = gl_texture_soft_circle(192, 0.5)
+    bloom_init()
+    bloom_tune(0.45, 1.6)   // threshold 낮춤 + intensity 높임 = 강한 글로우
+
+    // pool 초기화
+    i = 0
+    while i < PARTICLE_CAP {
+        push(px, 0.0); push(py, 0.0)
+        push(pvx, 0.0); push(pvy, 0.0)
+        push(pang, 0.0); push(pomg, 0.0)
+        push(plife, 0.0); push(plife0, 1.0); push(psize, 0.0)
+        push(pr, 1.0); push(pg, 1.0); push(pb, 1.0)
+        i = i + 1
+    }
+
+    state = 12345
+    t_start = gl_ticks_ms()
+    frames = 0
+
+    while gl_poll() == 1 {
+        // 매 프레임 30개 emit (분수)
+        i = 0
+        while i < 30 {
+            state = state ^ (state << 13)
+            state = state ^ (state >> 17)
+            state = state ^ (state << 5)
+            vx_raw = ((state & 511) as i32) as f64 - 256.0
+            state = state ^ (state << 13)
+            vy_raw = ((state & 255) as i32) as f64 + 250.0
+            state = state ^ (state << 13)
+            hue = ((state & 255) as i32) as f64 / 255.0
+            state = state ^ (state << 13)
+            omg_raw = ((state & 511) as i32) as f64 / 511.0 * 8.0 - 4.0
+
+            n = p_next
+            px[n] = 450.0
+            py[n] = 500.0
+            pvx[n] = vx_raw
+            pvy[n] = 0.0 - vy_raw
+            pang[n] = hue * 6.28318
+            pomg[n] = omg_raw
+            plife[n] = 2.0
+            plife0[n] = 2.0
+            psize[n] = 48.0
+            // 따뜻한 색 팔레트 (오렌지~핑크)
+            pr[n] = 1.0
+            pg[n] = 0.3 + hue * 0.5
+            pb[n] = hue * 0.3
+            p_next = (n + 1) % PARTICLE_CAP
+            i = i + 1
+        }
+
+        // update
+        j = 0
+        while j < PARTICLE_CAP {
+            if plife[j] > 0.0 {
+                plife[j] = plife[j] - 0.016
+                px[j] = px[j] + pvx[j] * 0.016
+                py[j] = py[j] + pvy[j] * 0.016
+                pvy[j] = pvy[j] + 400.0 * 0.016
+                pang[j] = pang[j] + pomg[j] * 0.016
+            }
+            j = j + 1
+        }
+
+        // draw — bloom + additive + soft circle + 회전
+        bloom_begin()
+        gl_clear(0.02, 0.02, 0.06)
+        sprite_batch_begin()
+        sprite_batch_glow_on()      // additive
+        k = 0
+        while k < PARTICLE_CAP {
+            if plife[k] > 0.0 {
+                fade = plife[k] / plife0[k]
+                alpha = fade * 0.8
+                gl_sprite_add_rot(soft, px[k], py[k], psize[k], psize[k], pang[k], 0.0, 0.0, 1.0, 1.0, pr[k] * fade, pg[k] * fade, pb[k] * fade, alpha)
+            }
+            k = k + 1
+        }
+        sprite_batch_end()
+        bloom_end()
+
+        gl_swap()
+        frames = frames + 1
+
+        now = gl_ticks_ms()
+        if (now - t_start) > 5000 {
+            print("FPS over 5s:")
+            print(frames * 1000 / (now - t_start))
+            active = 0
+            m = 0
+            while m < PARTICLE_CAP {
+                if plife[m] > 0.0 { active = active + 1 }
+                m = m + 1
+            }
+            print("active particles:")
+            print(active)
+            break
+        }
+    }
+    gl_close()
+}

@@ -1,0 +1,60 @@
+// ari_sdl.dh — Ari 엔진 SDL2 그래픽/입력 모듈
+//
+// 사용법: import ari_sdl
+//
+// SDL2 설치 필요:
+//   Linux:   sudo apt install libsdl2-dev
+//   macOS:   brew install sdl2
+//   Windows: https://github.com/libsdl-org/SDL/releases (SDL2-devel-*-mingw.zip)
+//
+// AOT 컴파일:
+//   danha compile mygame.dh  (SDL2가 설치된 환경에서 자동 탐색)
+//
+// ---- 스캔코드 상수 (sdl_key 인자) ----
+// SDL_SCANCODE_* 값: https://wiki.libsdl.org/SDL2/SDL_Scancode
+const SDL_KEY_ESC   = 41
+const SDL_KEY_SPACE = 44
+const SDL_KEY_LEFT  = 80
+const SDL_KEY_RIGHT = 79
+const SDL_KEY_UP    = 82
+const SDL_KEY_DOWN  = 81
+const SDL_KEY_W     = 26
+const SDL_KEY_A     = 4
+const SDL_KEY_S     = 22
+const SDL_KEY_D     = 7
+const SDL_KEY_F     = 9
+const SDL_KEY_R     = 21
+const SDL_KEY_E     = 8
+const SDL_KEY_Q     = 20
+const SDL_KEY_1     = 30
+const SDL_KEY_2     = 31
+const SDL_KEY_3     = 32
+
+// ---- 창 관리 ----
+
+@clink("danha_sdl2")
+extern fn sdl_open(title: ptr, width: i32, height: i32) -> i32
+extern fn sdl_poll() -> i32
+extern fn sdl_present()
+extern fn sdl_close()
+extern fn sdl_width() -> i32
+extern fn sdl_height() -> i32
+
+// ---- 그리기 ----
+
+extern fn sdl_clear(r: i32, g: i32, b: i32)
+extern fn sdl_pixel(x: i32, y: i32, r: i32, g: i32, b: i32)
+extern fn sdl_rect(x: i32, y: i32, w: i32, h: i32, r: i32, g: i32, b: i32)
+extern fn sdl_line(x0: i32, y0: i32, x1: i32, y1: i32, r: i32, g: i32, b: i32)
+
+// ---- 입력 ----
+
+extern fn sdl_key(scancode: i32) -> i32
+extern fn sdl_mouse_x() -> i32
+extern fn sdl_mouse_y() -> i32
+extern fn sdl_mouse_button(btn: i32) -> i32
+
+// ---- 타이머 ----
+
+extern fn sdl_delay(ms: i32)
+extern fn sdl_ticks() -> i32

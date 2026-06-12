@@ -1,0 +1,59 @@
+// danha_net.dh
+// 52단계: 단아 네트워킹 모듈
+//
+// 사용:
+//   import danha_net
+//   conn = danha_net.connect("127.0.0.1", 8080)
+//   danha_net.send(conn, "hello")
+//   msg = danha_net.recv(conn, 1024)
+//   danha_net.close(conn)
+
+/// TCP 서버에 연결. 성공 시 socket_id 반환.
+fn connect(host: str, port: i32) -> i32 {
+    return net_connect(host, port)
+}
+
+/// TCP 서버 소켓 생성 후 포트 대기. server_id 반환.
+fn listen(port: i32) -> i32 {
+    return net_listen(port)
+}
+
+/// 서버 소켓에서 연결 수락. client_id 반환.
+fn accept(server_id: i32) -> i32 {
+    return net_accept(server_id)
+}
+
+/// 데이터 전송.
+fn send(socket_id: i32, data: str) -> i32 {
+    return net_send(socket_id, data)
+}
+
+/// 데이터 수신. size 바이트까지 읽어 문자열로 반환.
+fn recv(socket_id: i32, size: i32) -> str {
+    return net_recv(socket_id, size)
+}
+
+/// 소켓 닫기.
+fn close(socket_id: i32) {
+    net_close(socket_id)
+}
+
+/// UDP 소켓 생성.
+fn udp_socket() -> i32 {
+    return net_udp_socket()
+}
+
+/// UDP 데이터 전송.
+fn udp_send(socket_id: i32, host: str, port: i32, data: str) -> i32 {
+    return net_udp_send(socket_id, host, port, data)
+}
+
+/// UDP 데이터 수신.
+fn udp_recv(socket_id: i32, size: i32) -> str {
+    return net_udp_recv(socket_id, size)
+}
+
+/// 소켓 타임아웃 설정 (초 단위, 0이면 블로킹).
+fn set_timeout(socket_id: i32, seconds: f64) {
+    net_set_timeout(socket_id, seconds)
+}

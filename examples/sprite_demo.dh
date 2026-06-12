@@ -1,0 +1,41 @@
+// Stage 69: 스프라이트 렌더러 데모.
+//
+// 사용법: 같은 디렉토리에 player.bmp (24/32-bit BMP) 두고
+//          danha compile examples/sprite_demo.dh
+//          ./sprite_demo
+//
+// 키:
+//   ESC — 종료
+//   WASD — 스프라이트 이동
+
+import danha_gl
+from ari_sprite import *
+
+if gl_open(800, 600, "Stage 69 Sprite Demo") == 0 {
+    print("창 생성 실패")
+} else {
+    player = sprite_load("player.bmp")
+    if player == 0 {
+        print("player.bmp 로드 실패 (없거나 BMP 형식 아님)")
+    } else {
+        print("로드됨. 크기:")
+        print(gl_texture_w(player))
+        print(gl_texture_h(player))
+
+        px = 350.0
+        py = 250.0
+        speed = 4.0
+
+        while gl_poll() == 1 {
+            if gl_key(26) == 1 { py = py - speed }  // W (SDL scancode)
+            if gl_key(22) == 1 { py = py + speed }  // S
+            if gl_key(4)  == 1 { px = px - speed }  // A
+            if gl_key(7)  == 1 { px = px + speed }  // D
+
+            gl_clear(0.12, 0.12, 0.18)
+            sprite_draw(player, px, py)
+            gl_swap()
+        }
+    }
+    gl_close()
+}

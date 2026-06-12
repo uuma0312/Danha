@@ -1,0 +1,68 @@
+// B2: ECS-style transform update — 100K entities × 300 ticks × 3 systems.
+// Storage = SoA dynarrays (각 컴포넌트 타입이 자기 배열).
+// 3 systems per tick: physics(pos+=vel*dt), spin(rot+=omega*dt), damping(vel*=0.999).
+// 진짜 component/system 빌트인은 capacity가 4096이라 100K엔 부족 — SoA 직접.
+
+struct V2 {
+    x: f64
+    y: f64
+}
+
+N = 100000
+TICKS = 300
+
+positions: [V2] = []
+velocities: [V2] = []
+rotations: [f64] = []
+omegas: [f64] = []
+
+state = 2463534242
+i = 0
+while i < N {
+    state = state ^ (state << 13)
+    state = state ^ (state >> 17)
+    state = state ^ (state << 5)
+    px = ((state & 1023) as i32) as f64
+    state = state ^ (state << 13)
+    state = state ^ (state >> 17)
+    state = state ^ (state << 5)
+    py = ((state & 1023) as i32) as f64
+    push(positions, V2 { x: px, y: py })
+    push(velocities, V2 { x: 0.5, y: -0.3 })
+    push(rotations, 0.0)
+    push(omegas, 0.05)
+    i = i + 1
+}
+
+dt = 0.01667
+damp = 0.999
+tick = 0
+while tick < TICKS {
+    // system physics: position += velocity * dt
+    j = 0
+    while j < N {
+        positions[j].x = positions[j].x + velocities[j].x * dt
+        positions[j].y = positions[j].y + velocities[j].y * dt
+        j = j + 1
+    }
+    // system spin: rotation += omega * dt
+    j = 0
+    while j < N {
+        rotations[j] = rotations[j] + omegas[j] * dt
+        j = j + 1
+    }
+    // system damping: velocity *= damp, omega *= damp
+    j = 0
+    while j < N {
+        velocities[j].x = velocities[j].x * damp
+        velocities[j].y = velocities[j].y * damp
+        omegas[j] = omegas[j] * damp
+        j = j + 1
+    }
+    tick = tick + 1
+}
+
+hx = (positions[N - 1].x * 1000.0) as i32
+hy = (positions[N - 1].y * 1000.0) as i32
+hr = (rotations[N - 1] * 1000.0) as i32
+print(hx * 31 + hy * 17 + hr)

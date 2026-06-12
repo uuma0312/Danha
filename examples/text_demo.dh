@@ -1,0 +1,68 @@
+// Stage 85: 텍스트 렌더링 데모.
+//
+// stb_truetype + sprite batch — TTF 폰트 한 번 bake → 글자가 atlas quad로.
+// 500ms마다 FPS 갱신 (HUD 패턴).
+//
+// 빌드: danha compile examples/text_demo.dh
+// 실행: ./text_demo (Windows: C:/Windows/Fonts/arial.ttf 사용)
+
+import danha_gl
+import danha_text
+from ari_sprite import *
+from ari_text import *
+
+if gl_open(900, 600, "Stage 85 Text Demo") == 0 {
+    print("창 생성 실패")
+} else {
+    gl_vsync(0)
+    font_big = font_load("C:/Windows/Fonts/arial.ttf", 36.0)
+    font_mid = font_load("C:/Windows/Fonts/arial.ttf", 20.0)
+
+    if font_big == 0 {
+        print("폰트 로드 실패 — C:/Windows/Fonts/arial.ttf 없음?")
+        gl_close()
+    } else {
+        t_start = gl_ticks_ms()
+        last_fps = t_start
+        frames_since_update = 0
+        fps_text = "FPS: ..."
+        soft = gl_texture_soft_circle(192, 0.5)
+        bloom_init()
+        bloom_tune(0.5, 1.2)
+
+        while gl_poll() == 1 {
+            bloom_begin()
+            gl_clear(0.05, 0.05, 0.1)
+            sprite_batch_begin()
+
+            // 배경 장식 — soft circle 몇 개 (additive)
+            sprite_batch_glow_on()
+            sprite_batch_soft(soft, 200.0, 400.0, 200.0, 0.8, 0.3, 0.5, 0.6)
+            sprite_batch_soft(soft, 700.0, 450.0, 250.0, 0.3, 0.5, 0.9, 0.5)
+            sprite_batch_glow_off()
+
+            // 텍스트 HUD
+            text_draw_color(font_big, "Stage 85 — Text Rendering", 30.0, 30.0, 1.0, 0.92, 0.5, 1.0)
+            text_draw_color(font_mid, "stb_truetype + sprite batch", 30.0, 90.0, 0.7, 0.85, 1.0, 1.0)
+            text_draw_color(font_mid, fps_text, 30.0, 130.0, 0.6, 1.0, 0.6, 1.0)
+            text_draw_color(font_mid, "ESC to quit", 30.0, 550.0, 0.6, 0.6, 0.7, 0.8)
+
+            sprite_batch_end()
+            bloom_end()
+            gl_swap()
+            frames_since_update = frames_since_update + 1
+
+            now = gl_ticks_ms()
+            if (now - last_fps) > 500 {
+                fps_val = frames_since_update * 1000 / (now - last_fps)
+                fps_text = "FPS: " + to_string(fps_val)
+                last_fps = now
+                frames_since_update = 0
+            }
+
+            if (now - t_start) > 8000 { break }
+        }
+
+        gl_close()
+    }
+}

@@ -1,0 +1,54 @@
+// ecs_demo.dh — ECS(Entity Component System) 데모
+// 단아의 핵심 게임 기능: 컴포넌트 + 시스템 + for each
+
+component Position {
+    x: f64
+    y: f64
+}
+
+component Velocity {
+    dx: f64
+    dy: f64
+}
+
+component Health {
+    hp: i32
+    max_hp: i32
+}
+
+// 이동 시스템 — 위치에 속도를 더함
+system move_entities(dt: f64) {
+    for each (p: &mut Position, v: &Velocity) {
+        p.x = p.x + v.dx * dt
+        p.y = p.y + v.dy * dt
+    }
+}
+
+// 상태 출력 시스템
+system print_status(dt: f64) {
+    for each (p: &Position, h: &Health) {
+        print("  위치: ({p.x}, {p.y}) | HP: {h.hp}/{h.max_hp}")
+    }
+}
+
+print("=== ECS 게임 데모 ===")
+
+// 엔티티 생성
+player = spawn()
+add(player, Position { x: 0.0, y: 0.0 })
+add(player, Velocity { dx: 1.5, dy: 0.5 })
+add(player, Health { hp: 100, max_hp: 100 })
+
+enemy = spawn()
+add(enemy, Position { x: 10.0, y: 5.0 })
+add(enemy, Velocity { dx: -0.5, dy: 0.3 })
+add(enemy, Health { hp: 50, max_hp: 50 })
+
+print("[초기 상태]")
+schedule(0.0)
+
+// 3프레임 시뮬레이션
+for frame in 0..3 {
+    print("\n[프레임 {frame + 1}]")
+    schedule(1.0)
+}

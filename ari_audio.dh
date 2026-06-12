@@ -1,0 +1,34 @@
+// ari_audio.dh — Ari 엔진 오디오 모듈 (Stage 80)
+//
+// 사용법: from ari_audio import *
+//
+// danha_audio 래퍼. 게임 친화 이름.
+//
+// 예시:
+//     from ari_audio import *
+//     audio_start()
+//     hit = sfx_load("hit.wav")
+//     bgm = sfx_load("bgm.wav")
+//     bgm_voice = sfx_loop(bgm)
+//     // ... 게임 루프 ...
+//     sfx_play(hit)
+//     audio_end()
+
+import danha_audio
+
+fn audio_start() -> i32 { return audio_init() }
+fn audio_end() { audio_close() }
+
+// SFX — 짧은 효과음 (메모리 캐시)
+fn sfx_load(path: ptr) -> i32 { return sound_load(path) }
+fn sfx_play(id: i32) -> i32 { return sound_play(id) }
+fn sfx_loop(id: i32) -> i32 { return sound_play_loop(id, -1) }
+fn sfx_stop(voice: i32) { voice_stop(voice) }
+fn sfx_volume(voice: i32, vol: f64) { voice_volume(voice, vol) }
+fn sfx_stop_all() { sound_stop_all() }
+
+// 전역 볼륨
+fn audio_master(vol: f64) { master_volume(vol) }
+
+// 디버그
+fn audio_active() -> i32 { return audio_active_voices() }

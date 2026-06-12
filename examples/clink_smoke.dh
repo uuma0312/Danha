@@ -1,0 +1,11 @@
+// @clink 스모크 — extern 블록 형식 + 링크 플래그 (danhac 셀프호스트 컴파일러 전용)
+
+@clink("kernel32") extern {
+    fn GetTickCount() -> i32
+    fn GetCurrentProcessId() -> i32
+}
+
+t = GetTickCount()
+p = GetCurrentProcessId()
+if t >= 0 or t < 0 { print("clink tick ok") }
+if p > 0 { print("clink pid ok") }

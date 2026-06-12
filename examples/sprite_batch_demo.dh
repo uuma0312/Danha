@@ -1,0 +1,101 @@
+// Stage 79: 배치 스프라이트 렌더러 벤치마크.
+//
+// 1000개 sprite를 두 가지 모드로 번갈아 그리며 FPS 비교.
+// Mode 0: legacy immediate (sprite_draw_sized — 1 sprite = 1 draw call)
+// Mode 1: batch (sprite_batch_begin/add/end — 1000 sprites = 1 draw call)
+//
+// 각 모드를 ~3초씩 측정 후 평균 FPS 출력.
+// BMP 파일 없어도 작동 (1x1 흰 텍스처 + tint).
+
+import danha_gl
+from ari_sprite import *
+
+N = 10000
+
+if gl_open(800, 600, "Stage 79 Batch Sprite Bench") == 0 {
+    print("창 생성 실패")
+} else {
+    gl_vsync(0)             // 진짜 처리량 측정
+    tex = gl_texture_white()
+
+    // sprite 위치 + 색깔을 미리 계산 (xorshift32)
+    xs: [f64] = []
+    ys: [f64] = []
+    rs: [f64] = []
+    gs: [f64] = []
+    bs: [f64] = []
+    state = 2463534242
+    i = 0
+    while i < N {
+        state = state ^ (state << 13)
+        state = state ^ (state >> 17)
+        state = state ^ (state << 5)
+        x = ((state & 1023) as i32) as f64 * 0.75
+        state = state ^ (state << 13)
+        state = state ^ (state >> 17)
+        state = state ^ (state << 5)
+        y = ((state & 1023) as i32) as f64 * 0.55
+        state = state ^ (state << 13)
+        rr = ((state & 255) as i32) as f64 / 255.0
+        state = state ^ (state << 13)
+        gg = ((state & 255) as i32) as f64 / 255.0
+        state = state ^ (state << 13)
+        bb = ((state & 255) as i32) as f64 / 255.0
+        push(xs, x)
+        push(ys, y)
+        push(rs, rr)
+        push(gs, gg)
+        push(bs, bb)
+        i = i + 1
+    }
+
+    mode = 0           // 0 = immediate, 1 = batch
+    t_start = gl_ticks_ms()
+    frames = 0
+    measure_ms = 3000
+
+    while gl_poll() == 1 {
+        gl_clear(0.08, 0.08, 0.12)
+
+        if mode == 0 {
+            // legacy immediate path — 1000 draw calls
+            i = 0
+            while i < N {
+                gl_texture_draw(tex, xs[i], ys[i], 16.0, 16.0, rs[i], gs[i], bs[i], 1.0)
+                i = i + 1
+            }
+        } else {
+            // batch path — 1 draw call
+            sprite_batch_begin()
+            i = 0
+            while i < N {
+                gl_sprite_add(tex, xs[i], ys[i], 16.0, 16.0, 0.0, 0.0, 1.0, 1.0, rs[i], gs[i], bs[i], 1.0)
+                i = i + 1
+            }
+            sprite_batch_end()
+        }
+
+        gl_swap()
+        frames = frames + 1
+
+        now = gl_ticks_ms()
+        if (now - t_start) > measure_ms {
+            elapsed_ms = now - t_start
+            if mode == 0 {
+                print("immediate mode FPS:")
+            } else {
+                print("batch mode FPS:")
+            }
+            print(frames * 1000 / elapsed_ms)
+            print("(frames in 3s)")
+            print(frames)
+            if mode == 1 {
+                break
+            }
+            mode = 1
+            t_start = gl_ticks_ms()
+            frames = 0
+        }
+    }
+    gl_close()
+}

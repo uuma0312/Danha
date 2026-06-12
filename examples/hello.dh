@@ -1,0 +1,6 @@
+// hello.dh — 단아 첫 프로그램
+print("안녕, 단아!")
+print("Hello, Danha!")
+
+name = "개발자"
+print("환영해, {name}!")

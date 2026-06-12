@@ -1,0 +1,26 @@
+// 100K entities × 300 ticks SoA layout — separate arrays per field
+xs: [f64] = []
+ys: [f64] = []
+vxs: [f64] = []
+vys: [f64] = []
+i = 0
+while i < 100000 {
+    push(xs, i as f64)
+    push(ys, 0.0)
+    push(vxs, 1.0)
+    push(vys, 0.5)
+    i = i + 1
+}
+
+dt = 0.016
+tick = 0
+while tick < 300 {
+    j = 0
+    while j < 100000 {
+        xs[j] = xs[j] + vxs[j] * dt
+        ys[j] = ys[j] + vys[j] * dt
+        j = j + 1
+    }
+    tick = tick + 1
+}
+print(xs[99999])

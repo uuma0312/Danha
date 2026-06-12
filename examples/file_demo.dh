@@ -1,0 +1,37 @@
+// file_demo.dh — 파일 I/O와 문자열 처리
+
+print("=== 파일 I/O 데모 ===")
+
+// CSV 파일 생성
+csv_data = "이름,나이,직업\n김단아,25,게임개발자\n이코드,30,엔진프로그래머\n박빌드,28,레벨디자이너"
+file_write("/tmp/danha_people.csv", csv_data)
+print("CSV 파일 생성 완료")
+
+// 파일 읽기 + 파싱
+content = file_read("/tmp/danha_people.csv")
+lines = split(content, "\n")
+print("총 {len(lines)}줄 (헤더 포함)")
+
+// 헤더 파싱
+header = split(lines[0], ",")
+print("[헤더] {header[0]} | {header[1]} | {header[2]}")
+print("---")
+
+// 데이터 파싱
+for i in 1..len(lines) {
+    fields = split(lines[i], ",")
+    name = fields[0]
+    age = fields[1]
+    job = fields[2]
+    print("{name} | {age}세 | {job}")
+}
+
+// 문자열 유틸리티 데모
+print("\n=== 문자열 유틸리티 ===")
+filename = "game_asset.png"
+print("파일명: {filename}")
+print("png로 끝나나: {ends_with(filename, ".png")}")
+print("이름 치환: {replace(filename, "game", "my")}")
+print("앞 4글자: {substr(filename, 0, 4)}")
+print("asset 포함: {contains(filename, "asset")}")
+print("길이: {str_len(filename)}")

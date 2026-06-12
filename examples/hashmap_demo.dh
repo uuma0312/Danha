@@ -1,0 +1,32 @@
+// HashMap + StringBuilder 데모 — 평가기와 danhac(셀프호스트) 출력 패리티 검증용
+
+m = HashMap.new()
+m.set("one", 1)
+m.set("two", 2)
+m.set("three", 3)
+print(m.len())
+print(m.get("two"))
+if m.has("three") { print("has three") }
+m.remove("two")
+if m.has("two") { print("two still here") } else { print("two removed") }
+print(m.len())
+ks = m.keys()
+i = 0
+while i < len(ks) {
+    print(ks[i])
+    i = i + 1
+}
+m.set("one", 100)
+print(m.get("one"))
+
+mi = HashMap.new()
+mi.set(7, 49)
+mi.set(8, 64)
+print(mi.get(7) + mi.get(8))
+
+sb = string_builder()
+string_builder_append(sb, "Hello")
+string_builder_append(sb, ", ")
+string_builder_append(sb, "Danha!")
+print(string_builder_to_string(sb))
+print(string_builder_len(sb))

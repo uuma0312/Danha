@@ -1,0 +1,3 @@
+print("direct-os")
+print(12345)
+print(true)

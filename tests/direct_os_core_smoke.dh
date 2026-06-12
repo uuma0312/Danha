@@ -1,0 +1,8 @@
+if "ari" == "ari" {
+    print("strcmp-ok")
+} else {
+    print("strcmp-bad")
+}
+
+n = parse_int("-42")
+print(n)

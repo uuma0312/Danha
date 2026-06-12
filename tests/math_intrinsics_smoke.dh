@@ -1,0 +1,27 @@
+// @math 인트린식 스모크 테스트
+const PI = 3.141592653589793
+
+print(@sqrt(2.0))          // 1.414...
+print(@sin(0.0))           // 0
+print(@cos(0.0))           // 1
+print(@tan(0.0))           // 0
+print(@abs(0 - 7))         // 7
+print(@abs(0.0 - 2.5))     // 2.5
+print(@floor(3.7))         // 3
+print(@ceil(3.2))          // 4
+print(@round(2.5))         // 3 (round half away)
+print(@log(1.0))           // 0
+print(@exp(0.0))           // 1
+print(@pow(2.0, 10.0))     // 1024
+print(@atan2(0.0, 1.0))    // 0
+print(@hypot(3.0, 4.0))    // 5
+print(@min(3, 9))          // 3
+print(@max(3, 9))          // 9
+print(@min(1.5, 0.5))      // 0.5
+print(@max(1.5, 0.5))      // 1.5
+
+fn deg2rad(d: f64) -> f64 {
+    return d * PI / 180.0
+}
+
+print(@sin(deg2rad(90.0))) // 1

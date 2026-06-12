@@ -1,0 +1,18 @@
+// const 스모크 테스트 — danhac.dh const 지원 검증
+const FOO = 10
+const BAR = 0 - 1
+const PI = 3.5
+const MSG = "hello-const"
+
+fn show() -> i64 {
+    return FOO + BAR
+}
+
+fn scaled(k: i64) -> f64 {
+    return PI * to_float(k)
+}
+
+print(show())        // 9
+print(scaled(2))     // 7
+print(MSG)           // hello-const
+print(FOO * 3)       // 30

@@ -1,0 +1,7 @@
+// modules_demo용 모듈
+print("mathx loaded")
+
+PI2 = 6
+
+fn double(x: i64) -> i64 { return x * 2 }
+fn triple(x: i64) -> i64 { return x * 3 }

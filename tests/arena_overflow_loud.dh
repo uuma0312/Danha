@@ -1,0 +1,9 @@
+// 동적 배열 대용량 성장 스트레스. 실제 Arena 초과 종료 검증은
+// arena_alloc_overflow.dh가 담당한다.
+xs: [i32] = []
+i = 0
+while i < 600000000 {
+    push(xs, i)
+    i = i + 1
+}
+print(len(xs))

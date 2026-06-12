@@ -1,0 +1,114 @@
+// danha_gl.dh — 단아 OpenGL 모듈
+//
+// 사용법: import danha_gl
+//
+// OpenGL 2.1 + SDL2 백엔드. 컴파일 시 danha_gl.c가 자동 빌드됨.
+
+// 키 상수 (gl_key 인자로 사용)
+const KEY_ESC   = 27
+const KEY_SPACE = 32
+const KEY_RETURN = 13
+const KEY_LEFT  = 1073741904
+const KEY_RIGHT = 1073741903
+const KEY_UP    = 1073741906
+const KEY_DOWN  = 1073741905
+const KEY_W     = 119
+const KEY_A     = 97
+const KEY_S     = 115
+const KEY_D     = 100
+
+// 마우스 버튼
+const MOUSE_LEFT   = 1
+const MOUSE_MIDDLE = 2
+const MOUSE_RIGHT  = 3
+
+// 창 관리
+@clink("danha_gl")
+extern fn gl_open(width: i32, height: i32, title: ptr) -> i32
+extern fn gl_poll() -> i32
+extern fn gl_swap()
+extern fn gl_close()
+extern fn gl_width() -> i32
+extern fn gl_height() -> i32
+
+// 2D 그리기 (좌표는 픽셀, 색상은 0.0~1.0 범위)
+extern fn gl_clear(r: f64, g: f64, b: f64)
+extern fn gl_triangle(x0: f64, y0: f64, x1: f64, y1: f64, x2: f64, y2: f64, r: f64, g: f64, b: f64)
+extern fn gl_rect(x: f64, y: f64, w: f64, h: f64, r: f64, g: f64, b: f64)
+extern fn gl_line(x0: f64, y0: f64, x1: f64, y1: f64, r: f64, g: f64, b: f64)
+extern fn gl_circle(cx: f64, cy: f64, radius: f64, r: f64, g: f64, b: f64)
+extern fn gl_point(x: f64, y: f64, r: f64, g: f64, b: f64)
+
+// 텍스처 (Stage 69: Ari 스프라이트 렌더러 기반)
+extern fn gl_texture_load(path: ptr) -> i32
+extern fn gl_texture_w(id: i32) -> i32
+extern fn gl_texture_h(id: i32) -> i32
+extern fn gl_texture_draw(id: i32, x: f64, y: f64, w: f64, h: f64, r: f64, g: f64, b: f64, a: f64)
+extern fn gl_texture_draw_uv(id: i32, x: f64, y: f64, w: f64, h: f64, u0: f64, v0: f64, u1: f64, v1: f64, r: f64, g: f64, b: f64, a: f64)
+
+// Stage 79: 배치 스프라이트 — 같은 텍스처 sprite들을 한 번의 draw call로 모음 (~100배 빠름).
+// 사용: gl_sprite_begin() → gl_sprite_add(...) × N → gl_sprite_end()
+extern fn gl_sprite_begin()
+extern fn gl_sprite_add(tex: i32, x: f64, y: f64, w: f64, h: f64, u0: f64, v0: f64, u1: f64, v1: f64, r: f64, g: f64, b: f64, a: f64)
+extern fn gl_sprite_end()
+// 1x1 흰 텍스처 — tint와 함께 단색 quad 그리기에 사용 (BMP 없이 batch 테스트 가능)
+extern fn gl_texture_white() -> i32
+
+// Stage 81: 텍스처 아틀라스 (자동 packing)
+extern fn gl_atlas_new(w: i32, h: i32) -> i32
+extern fn gl_atlas_add(atlas: i32, path: ptr) -> i32        // sub-sprite handle
+extern fn gl_atlas_finalize(atlas: i32) -> i32               // GL 업로드 → tex id
+extern fn gl_sub_tex(sub: i32) -> i32
+extern fn gl_sub_w(sub: i32) -> i32
+extern fn gl_sub_h(sub: i32) -> i32
+extern fn gl_sub_u0(sub: i32) -> f64
+extern fn gl_sub_v0(sub: i32) -> f64
+extern fn gl_sub_u1(sub: i32) -> f64
+extern fn gl_sub_v1(sub: i32) -> f64
+extern fn gl_sprite_add_sub(sub: i32, x: f64, y: f64, w: f64, h: f64, r: f64, g: f64, b: f64, a: f64)
+
+// Stage 84: 렌더 폭 늘리기
+// blend mode: 0=alpha (기본), 1=additive (glow/입자 합산)
+extern fn gl_sprite_blend(mode: i32)
+// 회전 quad: 중심 (cx,cy), 크기 (w,h), 라디안 angle. quad 4점이 회전된 채로 batch에 add.
+extern fn gl_sprite_add_rot(tex: i32, cx: f64, cy: f64, w: f64, h: f64, angle: f64, u0: f64, v0: f64, u1: f64, v1: f64, r: f64, g: f64, b: f64, a: f64)
+// 소프트 원형 그라데이션 텍스처 (radial falloff). pow=1 선형, 2 sharp 중심, 0.5 soft.
+extern fn gl_texture_soft_circle(size: i32, pow_falloff: f64) -> i32
+
+// Stage 87: Bloom 후처리 — FBO + 가우시안 blur + composite
+// 사용:
+//   gl_bloom_init()                    한 번 호출 (FBO 생성)
+//   while gl_poll() == 1 {
+//       gl_bloom_begin()               이후 그리기를 scene FBO로
+//       gl_clear(...); sprite_batch...
+//       gl_bloom_end()                 bright/blur/composite → backbuffer
+//       gl_swap()
+//   }
+extern fn gl_bloom_init() -> i32
+extern fn gl_bloom_set(threshold: f64, intensity: f64)
+extern fn gl_bloom_begin()
+extern fn gl_bloom_end()
+// 데모/벤치용 정수 ms timing (gl_ticks와 달리 i32 ABI라 dh f64 mismatch 없음)
+extern fn gl_ticks_ms() -> i32
+// vsync 토글 — 0: off (벤치/처리량), 1: on (게임, 60Hz 고정)
+extern fn gl_vsync(on: i32)
+
+// 셰이더 (GLSL 소스 문자열)
+extern fn gl_shader_new(vert_src: ptr, frag_src: ptr) -> i32
+extern fn gl_shader_use(shader_id: i32)
+extern fn gl_shader_off()
+extern fn gl_set_float(shader_id: i32, name: ptr, value: f64)
+extern fn gl_set_vec2(shader_id: i32, name: ptr, x: f64, y: f64)
+extern fn gl_set_vec3(shader_id: i32, name: ptr, x: f64, y: f64, z: f64)
+extern fn gl_set_vec4(shader_id: i32, name: ptr, x: f64, y: f64, z: f64, w: f64)
+extern fn gl_set_int(shader_id: i32, name: ptr, value: i32)
+
+// 입력
+extern fn gl_key(keycode: i32) -> i32
+extern fn gl_mouse_x() -> i32
+extern fn gl_mouse_y() -> i32
+extern fn gl_mouse_button(button: i32) -> i32
+
+// 시간
+extern fn gl_delay(ms: i32)
+extern fn gl_ticks() -> i32

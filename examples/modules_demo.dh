@@ -1,0 +1,10 @@
+// import/모듈 데모 — 중복 import 캐시 + from import + 하위 폴더 모듈
+import mathx
+import mathx
+from mathx import triple
+import geo.vecx
+
+print(mathx.double(21))
+print(triple(7))
+print(mathx.PI2)
+print(vecx.vlen2(3, 4))

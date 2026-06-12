@@ -1,0 +1,2 @@
+ret = os_exec("cmd /c exit 7")
+print(ret)

@@ -1,0 +1,33 @@
+// danha_gfx.dh — 단아 그래픽 모듈
+//
+// 사용법: import danha_gfx
+//
+// 키 상수 (gfx_key 인자로 사용)
+const KEY_ESC   = 27
+const KEY_SPACE = 32
+const KEY_LEFT  = 37
+const KEY_UP    = 38
+const KEY_RIGHT = 39
+const KEY_DOWN  = 40
+const KEY_W     = 87
+const KEY_A     = 65
+const KEY_S     = 83
+const KEY_D     = 68
+
+// 창 관리
+@clink("danha_win32")
+extern fn gfx_open(title: ptr, width: i32, height: i32) -> i32
+extern fn gfx_poll() -> i32
+extern fn gfx_present()
+extern fn gfx_close()
+extern fn gfx_width() -> i32
+extern fn gfx_height() -> i32
+
+// 그리기
+extern fn gfx_clear(r: i32, g: i32, b: i32)
+extern fn gfx_pixel(x: i32, y: i32, r: i32, g: i32, b: i32)
+extern fn gfx_rect(x: i32, y: i32, w: i32, h: i32, r: i32, g: i32, b: i32)
+extern fn gfx_line(x0: i32, y0: i32, x1: i32, y1: i32, r: i32, g: i32, b: i32)
+
+// 입력
+extern fn gfx_key(keycode: i32) -> i32

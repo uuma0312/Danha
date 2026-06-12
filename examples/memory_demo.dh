@@ -1,0 +1,68 @@
+// memory_demo.dh — 아레나 메모리 관리 + 커스텀 얼로케이터
+
+print("=== 아레나 메모리 관리 데모 ===\n")
+
+// 기본 아레나 사용
+frame_arena = Arena.new(1024)
+print("[Frame Arena]")
+print("  용량: {frame_arena.capacity()} bytes")
+
+// 여러 번 할당
+p1 = frame_arena.alloc(64)
+p2 = frame_arena.alloc(128)
+p3 = frame_arena.alloc(256)
+print("  할당 1: offset {p1}, 64 bytes")
+print("  할당 2: offset {p2}, 128 bytes")
+print("  할당 3: offset {p3}, 256 bytes")
+print("  사용량: {frame_arena.used()} / {frame_arena.capacity()}")
+
+// 프레임 끝 — 리셋으로 한 번에 해제 (free 안 해도 됨!)
+frame_arena.reset()
+print("  리셋 후: {frame_arena.used()} bytes")
+
+// 커스텀 얼로케이터 — 풀 방식
+print("\n[Pool Allocator]")
+
+trait Allocator {
+    fn alloc(self, size: i32) -> i32 {
+        return -1
+    }
+    fn reset(self) {
+        return 0
+    }
+}
+
+struct PoolAllocator {
+    block_size: i32
+    count: i32
+    next_free: i32
+}
+
+impl Allocator for PoolAllocator {
+    fn alloc(self, size: i32) -> i32 {
+        pos = self.next_free * self.block_size
+        self.next_free = self.next_free + 1
+        self.count = self.count + 1
+        return pos
+    }
+    fn reset(self) {
+        self.next_free = 0
+        self.count = 0
+        return 0
+    }
+}
+
+pool = PoolAllocator { block_size: 64, count: 0, next_free: 0 }
+b1 = pool.alloc(64)
+b2 = pool.alloc(64)
+b3 = pool.alloc(64)
+print("  블록 크기: {pool.block_size} bytes")
+print("  할당: [{b1}], [{b2}], [{b3}]")
+print("  총 {pool.count}개 블록 사용")
+
+pool.reset()
+print("  리셋 후: {pool.count}개 블록")
+
+// 정리
+frame_arena.destroy()
+print("\n✅ 모든 메모리 정리 완료")

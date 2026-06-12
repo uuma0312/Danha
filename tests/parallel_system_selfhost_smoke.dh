@@ -1,0 +1,27 @@
+component Num {
+    val
+}
+
+parallel system double_all() {
+    for each (n: Num) {
+        n.val = n.val * 2
+    }
+}
+
+system show_all() {
+    for each (n: Num) {
+        print(n.val)
+    }
+}
+
+e1 = spawn()
+e2 = spawn()
+e3 = spawn()
+e4 = spawn()
+add(e1, Num { val: 1 })
+add(e2, Num { val: 2 })
+add(e3, Num { val: 3 })
+add(e4, Num { val: 4 })
+
+double_all()
+show_all()

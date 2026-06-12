@@ -1,0 +1,30 @@
+// ari_text.dh — Ari 엔진 텍스트 모듈 (Stage 85)
+//
+// 사용:
+//   from ari_text import *
+//   f = font_load("arial.ttf", 24.0)
+//   text_draw(f, "Hello", 10.0, 10.0)        // sprite_batch_begin/end 안에서
+
+import danha_text
+
+fn font_load(path: ptr, size: f64) -> i32 {
+    return gl_font_load(path, size)
+}
+
+// batch 안에서 한 줄 그리기 (흰색)
+fn text_draw(font: i32, text: ptr, x: f64, y: f64) {
+    gl_text_draw(font, text, x, y, 1.0, 1.0, 1.0, 1.0)
+}
+
+// batch 안에서 색깔 있는 텍스트
+fn text_draw_color(font: i32, text: ptr, x: f64, y: f64, r: f64, g: f64, b: f64, a: f64) {
+    gl_text_draw(font, text, x, y, r, g, b, a)
+}
+
+// 즉시 그리기 (batch 밖에서 호출 가능 — 자체 wrap)
+fn text_quick(font: i32, text: ptr, x: f64, y: f64) {
+    gl_text_quick(font, text, x, y, 1.0, 1.0, 1.0, 1.0)
+}
+
+fn text_width(font: i32, text: ptr) -> f64 { return gl_text_measure_w(font, text) }
+fn text_height(font: i32) -> f64 { return gl_text_height(font) }

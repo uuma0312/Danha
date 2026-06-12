@@ -1,0 +1,26 @@
+path = "tests/probe_subject.obj"
+bs = file_read_bytes(path)
+machine = u16le(bs, 0)
+section_count = u16le(bs, 2)
+sym_ptr = u32le(bs, 8)
+sym_count = u32le(bs, 12)
+opt_size = u16le(bs, 16)
+sec_ptr = 20 + opt_size
+
+i = 0
+reloc_total = 0
+while i < section_count {
+    off = sec_ptr + i * 40
+    reloc_total = reloc_total + u16le(bs, off + 32)
+    i = i + 1
+}
+
+print(file_size(path))
+print(len(bs))
+print(machine)
+print(section_count)
+print(sym_ptr)
+print(sym_count)
+print(sec_ptr)
+print(reloc_total)
+print(i16le(bs, sym_ptr + 12))

@@ -1,0 +1,9 @@
+// 100K string accumulations using StringBuilder (Stage 70).
+// 이전엔 `s = s + "abc"` 불변 문자열 누적 → O(N²). Stage 70 mutable buffer로 amortized O(N).
+sb = string_builder()
+i = 0
+while i < 100000 {
+    string_builder_append(sb, "abc")
+    i = i + 1
+}
+print(string_builder_len(sb))

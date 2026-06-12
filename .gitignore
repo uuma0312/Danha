@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Danha build outputs
+build/
+dist/
+installer_output/
+last_version_installer/
+*.exe
+*.dll
+*.so
+*.dylib
+*.obj
+*.o
+*.a
+*.lib
+*.ll
+*.bc
+*.pdb
+*.ilk
+*.exp
+*.out
+*.selfhost.txt
+
+# Benchmark outputs
+bench/build/
+bench/results/
+bench/**/bin/
+bench/**/obj/
+bench/**/*.exe
+bench/**/*.obj
+bench/**/*.o
+bench/**/*.ll
+bench/**/*.out
+
+# Example build outputs
+examples/direct_linux_smoke
+examples/**/*.exe
+examples/**/*.obj
+examples/**/*.o
+examples/**/*.ll
+examples/**/*.out
+examples/**/SDL2.dll
+
+# Test build outputs
+tests/dl_args
+tests/dl_args_check*
+tests/dl_exec
+tests/dl_exec_check*
+tests/**/*.exe
+tests/**/*.obj
+tests/**/*.o
+tests/**/*.ll
+tests/**/*.out
+tests/**/*.selfhost.txt
+
+# Generated mobile/package projects
+android_build/
+ios_build/
+wasm_build/
+.gradle/
+local.properties
+
+# Editor and OS noise
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,115 @@
+// ECS 생명주기 + simple enum + continue 패리티 스모크
+// 기대 출력은 인터프리터와 동일해야 함 (tools/danhac_parity.py 의미론)
+
+// ── simple enum: variant = 정수 태그 ──
+enum Color { Red, Green, Blue }
+print(Color.Red)
+print(Color.Green)
+print(Color.Blue)
+
+enum Phase { Patrol, Chase, Attack }
+state = Phase.Chase
+if state == Phase.Chase { print(1) }
+if state == Phase.Patrol { print(0) }
+
+fn is_chasing(p: i32) -> i32 {
+    if p == 1 { return 1 }
+    return 0
+}
+print(is_chasing(Phase.Chase))
+print(is_chasing(Phase.Patrol))
+
+const INITIAL = Phase.Patrol
+s2 = INITIAL
+if s2 == Phase.Patrol { print(42) }
+
+// ── for continue (증가 건너뛰기 무한루프 회귀) ──
+for i in 0..5 {
+    if i == 2 { continue }
+    print(i)
+}
+
+// ── ECS 생명주기 ──
+component Position { x, y }
+component Velocity { x, y }
+
+a = spawn()
+b = spawn()
+print(a)
+print(b)
+print(is_alive(a))
+destroy(a)
+print(is_alive(a))
+print(is_alive(b))
+
+// 재사용: 같은 idx, 다음 세대 + 낡은 ID 감지
+c = spawn()
+print(c)
+print(is_alive(a))
+print(is_alive(c))
+
+// destroy 반환값
+print(destroy(a))
+print(destroy(c))
+
+// has / add / remove / overwrite / get
+e = spawn()
+print(has(e, Position))
+add(e, Position { x: 1.0, y: 2.0 })
+print(has(e, Position))
+add(e, Position { x: 99.0, y: 88.0 })
+p = get(e, Position)
+print(p.x)
+print(p.y)
+print(remove(e, Position))
+print(remove(e, Position))
+print(has(e, Position))
+
+// destroy가 컴포넌트 정리 → 재사용 자리에 안 묻음
+d = spawn()
+add(d, Position { x: 42.0, y: 42.0 })
+destroy(d)
+f = spawn()
+print(has(f, Position))
+
+// 두 컴포넌트 공존
+add(f, Position { x: 0.0, y: 0.0 })
+add(f, Velocity { x: 1.0, y: 2.0 })
+print(has(f, Position))
+print(has(f, Velocity))
+v = get(f, Velocity)
+print(v.y)
+
+// enum 값을 컴포넌트 필드로
+component AIState { phase }
+g = spawn()
+add(g, AIState { phase: Phase.Chase })
+ai = get(g, AIState)
+if ai.phase == Phase.Chase { print(1) }
+
+// ── Result 메서드 ──
+enum MyRes {
+    Ok(i32)
+    Err(i32)
+}
+fn divide(x: i32, y: i32) -> MyRes {
+    if y == 0 { return MyRes.Err(0) }
+    return MyRes.Ok(x / y)
+}
+r1 = divide(10, 2)
+if r1.is_ok() { print(1) } else { print(0) }
+r2 = divide(10, 0)
+if r2.is_err() { print(1) } else { print(0) }
+print(r1.unwrap_or(-1))
+print(r2.unwrap_or(-1))
+
+// tagged enum bare variant (payload 없는 variant)
+enum Msg {
+    Write(str)
+    Quit
+}
+m = Msg.Quit
+match m {
+    Write(t) => { print(t) }
+    Quit => { print(777) }
+}

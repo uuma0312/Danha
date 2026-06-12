@@ -1,0 +1,61 @@
+// shapes.dh — 구조체, trait, 메서드를 활용한 도형 계산
+
+trait Shape {
+    fn area(self) -> f64 {
+        return 0.0
+    }
+    fn describe(self) -> str {
+        return "도형"
+    }
+}
+
+struct Circle {
+    radius: f64
+}
+
+struct Rect {
+    width: f64
+    height: f64
+}
+
+struct Triangle {
+    base: f64
+    height: f64
+}
+
+impl Shape for Circle {
+    fn area(self) -> f64 {
+        return 3.14159 * self.radius * self.radius
+    }
+    fn describe(self) -> str {
+        return "원 (반지름: {self.radius})"
+    }
+}
+
+impl Shape for Rect {
+    fn area(self) -> f64 {
+        return self.width * self.height
+    }
+    fn describe(self) -> str {
+        return "직사각형 ({self.width} x {self.height})"
+    }
+}
+
+impl Shape for Triangle {
+    fn area(self) -> f64 {
+        return self.base * self.height * 0.5
+    }
+    fn describe(self) -> str {
+        return "삼각형 (밑변: {self.base}, 높이: {self.height})"
+    }
+}
+
+// 도형 생성 및 넓이 계산
+c = Circle { radius: 5.0 }
+r = Rect { width: 4.0, height: 6.0 }
+t = Triangle { base: 3.0, height: 8.0 }
+
+print("=== 도형 넓이 계산 ===")
+print("{c.describe()} → 넓이: {c.area()}")
+print("{r.describe()} → 넓이: {r.area()}")
+print("{t.describe()} → 넓이: {t.area()}")

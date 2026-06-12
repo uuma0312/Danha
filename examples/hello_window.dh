@@ -1,0 +1,39 @@
+// hello_window.dh — 단아로 Win32 창 띄우기
+// 컴파일: danha compile hello_window.dh
+//
+// danha_gfx 모듈: gfx_open, gfx_poll, gfx_present, gfx_clear,
+//                 gfx_pixel, gfx_rect, gfx_line, gfx_key, gfx_close
+
+import danha_gfx
+
+W = 640
+H = 480
+
+gfx_open("단아 첫 창!", W, H)
+
+frame = 0
+while gfx_poll() {
+    gfx_clear(15, 15, 30)
+
+    // 움직이는 그라디언트 배경
+    for y in 0..H {
+        for x in 0..W {
+            r = (x + frame) % 256
+            g = (y + frame / 2) % 256
+            b = (frame * 2) % 256
+            gfx_pixel(x, y, r, g, b)
+        }
+    }
+
+    // 가운데 흰 사각형
+    gfx_rect(W / 2 - 60, H / 2 - 40, 120, 80, 255, 255, 255)
+
+    // 십자 선
+    gfx_line(0, H / 2, W, H / 2, 255, 255, 0)
+    gfx_line(W / 2, 0, W / 2, H, 255, 255, 0)
+
+    gfx_present()
+    frame = frame + 1
+}
+
+gfx_close()

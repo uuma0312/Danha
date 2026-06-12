@@ -1,0 +1,15 @@
+// 10M vec4f normalize — SIMD <4 x float> length+div
+fn norm_sum(n: i32) -> f64 {
+    acc = 0.0
+    i = 0
+    while i < n {
+        x = i as f32
+        v = vec4f(x, x + 1.0, x + 2.0, x + 3.0)
+        u = normalize(v)
+        acc = acc + (u.x as f64) + (u.y as f64) + (u.z as f64) + (u.w as f64)
+        i = i + 1
+    }
+    return acc
+}
+
+print(norm_sum(10000000))

@@ -1,0 +1,33 @@
+// danha_audio.dh — 단아 오디오 모듈 (Stage 80)
+//
+// 사용법: import danha_audio
+//
+// SDL2 native audio. wav 로드 + voice pool 믹싱. 최대 32개 동시 재생.
+// audio_init() 후 sound_load → sound_play.
+
+@clink("danha_audio")
+extern fn audio_init() -> i32
+extern fn audio_close()
+
+// wav 로드. 실패 시 0. 성공 시 sound id (>0).
+// 출력 spec(44.1kHz S16 stereo)과 다른 wav는 자동 변환.
+extern fn sound_load(path: ptr) -> i32
+
+// 새 voice에 sound를 한 번 재생. 반환 voice slot (-1 = 빈 slot 없음).
+extern fn sound_play(id: i32) -> i32
+
+// loops 회 반복 (loops=-1 무한). 반환 voice slot.
+extern fn sound_play_loop(id: i32, loops: i32) -> i32
+
+// voice slot 정지/볼륨 (sound_play 반환값으로 슬롯 추적).
+extern fn voice_stop(slot: i32)
+extern fn voice_volume(slot: i32, vol: f64)
+
+// 모든 voice 정지
+extern fn sound_stop_all()
+
+// 전역 마스터 볼륨 (0.0~1.0)
+extern fn master_volume(vol: f64)
+
+// 디버그: 현재 활성 voice 개수
+extern fn audio_active_voices() -> i32

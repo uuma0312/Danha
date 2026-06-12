@@ -1,0 +1,37 @@
+// fibonacci.dh — 피보나치 수열 두 가지 방법
+
+// 1. 재귀 방식
+fn fib_recursive(n: i32) -> i32 {
+    if n <= 1 { return n }
+    return fib_recursive(n - 1) + fib_recursive(n - 2)
+}
+
+// 2. 반복 방식 (빠름)
+fn fib_iterative(n: i32) -> i32 {
+    if n <= 1 { return n }
+    a = 0
+    b = 1
+    for i in 2..n+1 {
+        temp = b
+        b = a + b
+        a = temp
+    }
+    return b
+}
+
+print("=== 피보나치 수열 ===")
+for i in 0..10 {
+    print("fib({i}) = {fib_iterative(i)}")
+}
+
+// 성능 비교
+print("\n=== 성능 비교 ===")
+t1 = clock()
+result1 = fib_recursive(20)
+t2 = clock()
+print("재귀 fib(20) = {result1}")
+
+t3 = clock()
+result2 = fib_iterative(20)
+t4 = clock()
+print("반복 fib(20) = {result2}")

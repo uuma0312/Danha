@@ -1,0 +1,2 @@
+// modules_demo용 하위 폴더 모듈
+fn vlen2(x: i64, y: i64) -> i64 { return x * x + y * y }

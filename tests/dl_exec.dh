@@ -1,0 +1,5 @@
+﻿r = os_exec("echo syscall-exec-ok")
+print(r)
+r2 = os_exec("exit 7")
+print(r2)
+

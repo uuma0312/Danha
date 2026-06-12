@@ -1,0 +1,18 @@
+struct Particle {
+    px: f64
+    py: f64
+    vx: f64
+    vy: f64
+}
+
+ps: [Particle] = []
+i = 0
+while i < 100 {
+    p = Particle { px: i as f64, py: 0.0, vx: 1.0, vy: 0.5 }
+    push(ps, p)
+    i = i + 1
+}
+
+print(len(ps))
+print(ps[50].px)
+print(ps[99].px)

@@ -1,0 +1,4 @@
+// const 재대입 — 컴파일 에러가 나야 정상
+const LIMIT = 5
+LIMIT = 6
+print(LIMIT)

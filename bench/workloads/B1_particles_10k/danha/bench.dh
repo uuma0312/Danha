@@ -1,0 +1,48 @@
+// B1: 10K particles × 600 ticks (10초 @ 60Hz 시뮬레이션, 중력+감쇠).
+// 03_particle_step_aos와 다른 점: 작은 버퍼 (~313KB, L2 캐시 적합) + 긴 시뮬레이션.
+// 게임 프레임 루프의 캐시 거주 패턴을 측정.
+struct Particle {
+    px: f64
+    py: f64
+    vx: f64
+    vy: f64
+}
+
+N = 10000
+TICKS = 600
+
+ps: [Particle] = []
+state = 2463534242
+i = 0
+while i < N {
+    state = state ^ (state << 13)
+    state = state ^ (state >> 17)
+    state = state ^ (state << 5)
+    sx = ((state & 1023) as i32) as f64
+    sy = (((state >> 10) & 1023) as i32) as f64
+    p = Particle { px: sx, py: sy, vx: 0.5, vy: -2.0 }
+    push(ps, p)
+    i = i + 1
+}
+
+dt = 0.01667
+gravity = 9.8
+damping = 0.999
+tick = 0
+while tick < TICKS {
+    j = 0
+    while j < N {
+        ps[j].vy = ps[j].vy + gravity * dt
+        ps[j].vx = ps[j].vx * damping
+        ps[j].vy = ps[j].vy * damping
+        ps[j].px = ps[j].px + ps[j].vx * dt
+        ps[j].py = ps[j].py + ps[j].vy * dt
+        j = j + 1
+    }
+    tick = tick + 1
+}
+
+// 마지막 입자 위치 × 1000 → i32 결정적 체크섬 (두 좌표 합쳐서 1라인).
+hx = (ps[N - 1].px * 1000.0) as i32
+hy = (ps[N - 1].py * 1000.0) as i32
+print(hx * 31 + hy)

@@ -1,0 +1,13 @@
+// runtime-varying mat4 rotation × vec4 — no constant folding
+acc = 0.0
+i = 0
+n = 10000000
+v = vec4(1.0, 2.0, 3.0, 4.0)
+while i < n {
+    angle = i as f64
+    m = mat4_rotate_y(angle)
+    r = m * v
+    acc = acc + r.x + r.y + r.z + r.w
+    i = i + 1
+}
+print(acc)

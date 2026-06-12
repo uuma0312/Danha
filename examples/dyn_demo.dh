@@ -1,0 +1,37 @@
+// 트레잇 객체 (동적 디스패치) 데모 — vtable 기반 dyn Trait
+
+struct Circle { r: f64 }
+struct Rect { w: f64, h: f64 }
+struct Blank { pad: i64 }
+
+trait Shape {
+    fn area(self) -> f64 { return 0.0 }
+    fn name(self) -> str { return "shape" }
+}
+
+impl Shape for Circle {
+    fn area(self) -> f64 { return self.r * self.r * 3.0 }
+    fn name(self) -> str { return "circle" }
+}
+
+impl Shape for Rect {
+    fn area(self) -> f64 { return self.w * self.h }
+}
+
+impl Shape for Blank {}
+
+fn describe(s: dyn Shape) {
+    print(s.name())
+    print(s.area())
+}
+
+c = Circle { r: 2.0 }
+dc = c as dyn Shape
+print(dc.area())
+print(dc.name())
+
+r = Rect { w: 3.0, h: 5.0 }
+describe(r as dyn Shape)
+describe(Blank { pad: 0 } as dyn Shape)
+
+print(dc == null)

@@ -1,0 +1,2 @@
+file_write("Danha/tests/direct_os_file_smoke.out", "hello-file")
+if file_exists("Danha/tests/direct_os_file_smoke.out") { print(file_read("Danha/tests/direct_os_file_smoke.out")) } else { print("missing") }

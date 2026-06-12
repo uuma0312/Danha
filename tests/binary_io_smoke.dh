@@ -1,0 +1,13 @@
+bs: [i64] = []
+push(bs, 77)
+push(bs, 0)
+push(bs, 90)
+
+file_write_bytes("tests/binary_io_smoke.bin", bs)
+
+rs = file_read_bytes("tests/binary_io_smoke.bin")
+print(file_size("tests/binary_io_smoke.bin"))
+print(len(rs))
+print(rs[0])
+print(rs[1])
+print(rs[2])

@@ -1,0 +1,26 @@
+print(not 5 > 3)
+print(not 5 < 3)
+
+fn side_effect() -> i32 {
+    print(999)
+    return 1
+}
+
+if false and side_effect() > 0 {
+    print(1)
+} else {
+    print(0)
+}
+
+if true or side_effect() > 0 {
+    print(0)
+} else {
+    print(1)
+}
+
+x = 0
+if x != 0 and 10 / x > 0 {
+    print(1)
+} else {
+    print(0)
+}

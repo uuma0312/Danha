@@ -1,0 +1,22 @@
+// 1M f64 sequential sum, 200 passes — memory bandwidth + auto-vectorize
+n = 1000000
+passes = 200
+
+arr: [f64] = []
+i = 0
+while i < n {
+    push(arr, i as f64)
+    i = i + 1
+}
+
+total = 0.0
+p = 0
+while p < passes {
+    j = 0
+    while j < n {
+        total = total + arr[j]
+        j = j + 1
+    }
+    p = p + 1
+}
+print(total)

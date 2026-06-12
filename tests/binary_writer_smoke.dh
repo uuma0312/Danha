@@ -1,0 +1,18 @@
+out: [i64] = []
+put_u8(out, 0x4D)
+put_u8(out, 0x5A)
+put_u16le(out, 0x8664)
+put_u32le(out, 0x12345678)
+
+file_write_bytes("tests/binary_writer_smoke.bin", out)
+bs = file_read_bytes("tests/binary_writer_smoke.bin")
+
+print(len(bs))
+print(bs[0])
+print(bs[1])
+print(u16le(bs, 2))
+print(u32le(bs, 4))
+print(bs[4])
+print(bs[5])
+print(bs[6])
+print(bs[7])

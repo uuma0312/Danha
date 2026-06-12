@@ -1,0 +1,26 @@
+// 제네릭 enum(타입 소거) + 리플렉션 영속화 IR 방출 확인
+enum Option[T] {
+    Some(T)
+    None
+}
+
+fn unwrap_or(o: Option, dflt: i64) -> i64 {
+    match o {
+        Some(v) => { return v }
+        None => { return dflt }
+    }
+    return dflt
+}
+
+a = Option.Some(42)
+b = Option.None()
+print(unwrap_or(a, 0))    // 42
+print(unwrap_or(b, 7))    // 7
+
+struct SaveData {
+    hp: i64
+    mp: f64
+}
+sd = SaveData { hp: 100, mp: 50.5 }
+print(_reflect_SaveData_field_count())   // 2
+// save/load는 ari 런타임 링크가 필요하므로 호출하지 않고 방출만 확인

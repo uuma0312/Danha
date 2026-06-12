@@ -1,0 +1,49 @@
+// error_handling.dh — Result 타입과 ? 연산자로 에러 처리
+
+enum Result {
+    Ok(i32)
+    Err(str)
+}
+
+// 나눗셈 — 0으로 나누면 에러
+fn safe_divide(a: i32, b: i32) -> Result {
+    if b == 0 {
+        return Result.Err("0으로 나눌 수 없어")
+    }
+    return Result.Ok(a / b)
+}
+
+// 제곱근 — 음수면 에러
+fn safe_sqrt_int(n: i32) -> Result {
+    if n < 0 {
+        return Result.Err("음수의 제곱근은 구할 수 없어")
+    }
+    return Result.Ok(to_int(sqrt(to_float(n))))
+}
+
+// ? 연산자로 에러 전파 — 깔끔한 코드
+fn compute(a: i32, b: i32) -> Result {
+    quotient = safe_divide(a, b)?      // 실패하면 여기서 바로 반환
+    root = safe_sqrt_int(quotient)?    // 이것도 실패하면 바로 반환
+    return Result.Ok(root)
+}
+
+print("=== Result + ? 연산자 데모 ===\n")
+
+// 성공 케이스
+match compute(100, 4) {
+    Ok(v) => { print("compute(100, 4) = {v}") }
+    Err(e) => { print("에러: {e}") }
+}
+
+// 0으로 나누기 실패
+match compute(100, 0) {
+    Ok(v) => { print("compute(100, 0) = {v}") }
+    Err(e) => { print("에러: {e}") }
+}
+
+// 음수 제곱근 실패
+match compute(-100, 1) {
+    Ok(v) => { print("compute(-100, 1) = {v}") }
+    Err(e) => { print("에러: {e}") }
+}

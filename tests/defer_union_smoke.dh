@@ -1,0 +1,44 @@
+// defer + union + i8/i16 스모크
+union Bits {
+    i: i64
+    f: f64
+}
+
+struct Small {
+    a: i8
+    b: i16
+    c: i64
+}
+
+fn work() -> i64 {
+    defer { print("d1") }
+    defer { print("d2") }
+    print("body")
+    return 42
+}
+
+fn early(x: i64) -> i64 {
+    defer { print("cleanup") }
+    if x > 0 {
+        print("pos")
+        return 1
+    }
+    print("nonpos")
+    return 0
+}
+
+print(work())        // body, d2, d1, 42
+print(early(5))      // pos, cleanup, 1
+print(early(0 - 1))  // nonpos, cleanup, 0
+
+u = Bits { i: 77 }
+print(u.i)           // 77
+u.f = 2.5
+print(u.f)           // 2.5
+u.i = 1000000
+print(u.i)           // 1000000
+
+sm = Small { a: 7, b: 300, c: 99 }
+print(sm.a as i64)   // 7
+print(sm.b as i64)   // 300
+print(sm.c)          // 99

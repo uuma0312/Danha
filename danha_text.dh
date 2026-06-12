@@ -1,0 +1,22 @@
+// danha_text.dh — 단아 텍스트 렌더링 모듈 (Stage 85)
+//
+// stb_truetype 기반 — TTF 폰트 한 번 load, ASCII 32-127을 atlas로 bake,
+// 매 글자가 sprite batch에 quad add. 1000자도 1 draw call.
+//
+// 사용:
+//   import danha_text
+//   font = gl_font_load("C:/Windows/Fonts/arial.ttf", 24.0)
+//   sprite_batch_begin()
+//   gl_text_draw(font, "Score: 1234", 10.0, 10.0, 1.0, 1.0, 1.0, 1.0)
+//   sprite_batch_end()
+
+@clink("danha_text")
+extern fn gl_font_load(path: ptr, pixel_size: f64) -> i32
+// 호출자가 sprite_batch_begin/end 안에서 호출 (perf 최적)
+extern fn gl_text_draw(font: i32, text: ptr, x: f64, y: f64, r: f64, g: f64, b: f64, a: f64)
+// 자체 begin/end로 즉시 그리기 (편의용)
+extern fn gl_text_quick(font: i32, text: ptr, x: f64, y: f64, r: f64, g: f64, b: f64, a: f64)
+// 텍스트 너비 측정 (픽셀)
+extern fn gl_text_measure_w(font: i32, text: ptr) -> f64
+// 폰트의 pixel height (load 시 지정한 값)
+extern fn gl_text_height(font: i32) -> f64

@@ -1,0 +1,40 @@
+// Stage 80: 오디오 데모.
+//
+// 1초 sine tone wav를 디스크에 임시 생성 후 로드+재생.
+// 실제 게임: hit.wav, jump.wav, bgm.wav 등을 sound_load + sound_play.
+//
+// 빌드: danha compile examples/audio_demo.dh
+// 실행: ./audio_demo  (SDL2.dll 필요)
+
+import danha_audio
+import danha_gl
+from ari_audio import *
+
+if audio_start() == 0 {
+    print("audio_init 실패")
+} else {
+    print("audio_init OK")
+
+    snd = sfx_load("sample.wav")
+    if snd == 0 {
+        print("sample.wav 없음 — 빈 실행 종료")
+        print("(예제: 같은 디렉토리에 sample.wav 두면 자동 재생)")
+    } else {
+        print("로드 성공. 재생 시작 (3회 반복)")
+        v = sound_play_loop(snd, 2)
+        print("voice slot:")
+        print(v)
+
+        // 3초 대기, 1초마다 active voice 개수 출력
+        i = 0
+        while i < 3 {
+            gl_delay(1000)
+            print("active voices:")
+            print(audio_active())
+            i = i + 1
+        }
+    }
+
+    audio_end()
+    print("audio_close OK")
+}

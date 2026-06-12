@@ -1,0 +1,5 @@
+args = get_args()
+print(len(args))
+if len(args) > 0 {
+    print(args[0])
+}

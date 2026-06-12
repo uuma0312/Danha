@@ -1,0 +1,29 @@
+const SUM = comptime {
+    total = 0
+    for i in 0..6 {
+        total = total + i
+    }
+    total
+}
+
+const FACT = comptime {
+    n = 5
+    acc = 1
+    while n > 1 {
+        acc = acc * n
+        n = n - 1
+    }
+    acc
+}
+
+const CHOSEN = comptime {
+    if SUM == 15 and FACT == 120 {
+        777
+    } else {
+        0
+    }
+}
+
+print(SUM)
+print(FACT)
+print(CHOSEN)

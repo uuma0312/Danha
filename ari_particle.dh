@@ -1,0 +1,139 @@
+// ari_particle.dh — Ari 엔진 입자 시스템 (Stage 82)
+//
+// 단일 글로벌 입자 풀 (8192개). SoA 레이아웃으로 update 루프가 auto-vectorize.
+// Draw는 sprite_batch_sub로 자동 batching → 8000 입자가 1 draw call.
+//
+// 사용 예:
+//   from ari_particle import *
+//   particles_init()
+//   atlas = atlas_new(64, 64)
+//   spark = atlas_add(atlas, "spark.bmp")
+//   atlas_finalize(atlas)
+//
+//   while gl_poll() == 1 {
+//       particles_emit(mx, my, 100.0, -200.0, 1.5, 8.0, 1.0, 0.8, 0.2, 1.0, spark)
+//       particles_update(0.016)
+//       gl_clear(0, 0, 0.05)
+//       particles_draw()
+//       gl_swap()
+//   }
+
+import danha_gl
+from ari_sprite import *
+
+PARTICLE_CAP = 8192
+
+particles_x: [f64] = []
+particles_y: [f64] = []
+particles_vx: [f64] = []
+particles_vy: [f64] = []
+particles_life: [f64] = []
+particles_size: [f64] = []
+particles_r: [f64] = []
+particles_g: [f64] = []
+particles_b: [f64] = []
+particles_a: [f64] = []
+particles_sub: [i32] = []
+particle_gravity_x = 0.0
+particle_gravity_y = 200.0   // 픽셀/초^2 — 아래로
+particle_next = 0
+particles_inited = 0
+
+fn particles_init() {
+    if particles_inited == 1 { return }
+    i = 0
+    while i < PARTICLE_CAP {
+        push(particles_x, 0.0)
+        push(particles_y, 0.0)
+        push(particles_vx, 0.0)
+        push(particles_vy, 0.0)
+        push(particles_life, 0.0)
+        push(particles_size, 0.0)
+        push(particles_r, 1.0)
+        push(particles_g, 1.0)
+        push(particles_b, 1.0)
+        push(particles_a, 1.0)
+        push(particles_sub, 0)
+        i = i + 1
+    }
+    particles_inited = 1
+}
+
+fn particles_set_gravity(gx: f64, gy: f64) {
+    particle_gravity_x = gx
+    particle_gravity_y = gy
+}
+
+// 한 입자 발사 (가장 오래된 슬롯을 ring으로 재사용)
+fn particles_emit(x: f64, y: f64, vx: f64, vy: f64, life: f64, size: f64, r: f64, g: f64, b: f64, a: f64, sub: i32) {
+    n = particle_next
+    particles_x[n] = x
+    particles_y[n] = y
+    particles_vx[n] = vx
+    particles_vy[n] = vy
+    particles_life[n] = life
+    particles_size[n] = size
+    particles_r[n] = r
+    particles_g[n] = g
+    particles_b[n] = b
+    particles_a[n] = a
+    particles_sub[n] = sub
+    particle_next = (n + 1) % PARTICLE_CAP
+}
+
+// 점 주위 N개를 무작위 방향으로 발사 (간이 explosion)
+fn particles_burst(x: f64, y: f64, n: i32, speed: f64, life: f64, size: f64, r: f64, g: f64, b: f64, a: f64, sub: i32) {
+    state = 2463534242 ^ (particle_next * 2654435761)
+    i = 0
+    while i < n {
+        state = state ^ (state << 13)
+        state = state ^ (state >> 17)
+        state = state ^ (state << 5)
+        ang = ((state & 65535) as i32) as f64 / 65535.0 * 6.28318
+        state = state ^ (state << 13)
+        sp = ((state & 4095) as i32) as f64 / 4095.0 * speed + speed * 0.2
+        vx = sp * cos(ang)
+        vy = sp * sin(ang)
+        particles_emit(x, y, vx, vy, life, size, r, g, b, a, sub)
+        i = i + 1
+    }
+}
+
+// 한 프레임 갱신. dt는 초 단위 (예: 1/60 = 0.0167).
+fn particles_update(dt: f64) {
+    i = 0
+    while i < PARTICLE_CAP {
+        if particles_life[i] > 0.0 {
+            particles_life[i] = particles_life[i] - dt
+            particles_x[i] = particles_x[i] + particles_vx[i] * dt
+            particles_y[i] = particles_y[i] + particles_vy[i] * dt
+            particles_vx[i] = particles_vx[i] + particle_gravity_x * dt
+            particles_vy[i] = particles_vy[i] + particle_gravity_y * dt
+        }
+        i = i + 1
+    }
+}
+
+// 활성 입자를 모두 batch에 추가. begin/end 자동 호출.
+fn particles_draw() {
+    sprite_batch_begin()
+    i = 0
+    while i < PARTICLE_CAP {
+        if particles_life[i] > 0.0 {
+            sprite_batch_sub_sized(particles_sub[i], particles_x[i], particles_y[i], particles_size[i], particles_size[i], particles_r[i], particles_g[i], particles_b[i], particles_a[i])
+        }
+        i = i + 1
+    }
+    sprite_batch_end()
+}
+
+// 현재 살아있는 입자 개수 (디버그/UI)
+fn particles_active() -> i32 {
+    n = 0
+    i = 0
+    while i < PARTICLE_CAP {
+        if particles_life[i] > 0.0 { n = n + 1 }
+        i = i + 1
+    }
+    return n
+}

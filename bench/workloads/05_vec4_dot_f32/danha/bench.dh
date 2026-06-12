@@ -1,0 +1,15 @@
+// vec4f (f32) dot product loop — SSE/AVX <4 x float>
+fn dot_sum(a: vec4f, n: i32) -> f64 {
+    acc = 0.0
+    i = 0
+    while i < n {
+        x = i as f32
+        b = vec4f(x, x, x, x)
+        acc = acc + (dot(a, b) as f64)
+        i = i + 1
+    }
+    return acc
+}
+
+a = vec4f(1.0, 2.0, 3.0, 4.0)
+print(dot_sum(a, 100000000))

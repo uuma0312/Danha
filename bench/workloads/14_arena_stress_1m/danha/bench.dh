@@ -1,0 +1,16 @@
+// 1M iter × 100 frames: push 8 elements per frame, then reset
+// Danha's arena makes per-iteration allocation effectively free.
+total = 0
+frame = 0
+while frame < 100 {
+    buf: [i32] = []
+    j = 0
+    while j < 10000 {
+        push(buf, j)
+        j = j + 1
+    }
+    total = total + buf[5000]
+    arena_reset()
+    frame = frame + 1
+}
+print(total)

@@ -1,0 +1,79 @@
+// macro/comptime/제네릭/unsafe/vec/리플렉션 스모크
+const BASE = 10
+
+// ── macro: 인라인 확장 ──
+macro square(x: i64) {
+    x * x
+}
+
+macro log_twice(msg: str) {
+    print(msg)
+    print(msg)
+}
+
+print(square!(7))        // 49
+log_twice!("twice")      // twice, twice
+
+// ── comptime: 상수식 평가 ──
+const CT = comptime { BASE * 4 + 2 }
+print(CT)                // 42
+print(comptime { 3.5 * 2.0 })   // 7
+x = comptime { 100 / 4 }
+print(x)                 // 25
+
+// ── 제네릭: 모노모피제이션 ──
+fn gmax[T](a: T, b: T) -> T {
+    if a > b { return a }
+    return b
+}
+
+fn pair_sum[A, B](a: A, b: B) -> f64 {
+    return (a as f64) + (b as f64)
+}
+
+print(gmax(3, 9))            // 9
+print(gmax(2.5, 1.5))        // 2.5
+print(gmax(10, 4))           // 10 (캐시 재사용)
+print(pair_sum(3, 1.5))      // 4.5
+
+// ── unsafe: 블록/fn ──
+unsafe fn raw_add(a: i64, b: i64) -> i64 {
+    return a + b
+}
+unsafe {
+    print(raw_add(20, 22))   // 42
+}
+
+// ── vec: 생성/성분/산술/dot ──
+v = vec3(1.0, 2.0, 3.0)
+w = vec3(4.0, 5.0, 6.0)
+print(v.x)               // 1
+print(v.z)               // 3
+s = v + w
+print(s.y)               // 7
+d = v * 2.0
+print(d.z)               // 6
+print(dot(v, w))         // 32
+v.x = 10.0
+print(v.x)               // 10
+
+fn vlen2(a: vec3) -> f64 {
+    return dot(a, a)
+}
+print(vlen2(w))          // 77
+
+// ── 리플렉션 ──
+struct Pt {
+    x: f64
+    y: f64
+    tag: i64
+}
+p = Pt { x: 1.5, y: 2.5, tag: 7 }
+print(_reflect_Pt_field_count())       // 3
+print(_reflect_Pt_field_name(0))       // x
+print(_reflect_Pt_field_name(2))       // tag
+print(_reflect_Pt_field_type(0))       // 1 (f64)
+print(_reflect_Pt_field_type(2))       // 0 (int)
+print(_reflect_Pt_get_f64(p, 1))       // 2.5
+_reflect_Pt_set_f64(p, 0, 9.5)
+print(p.x)                             // 9.5

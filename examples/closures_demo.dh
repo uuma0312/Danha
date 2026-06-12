@@ -1,0 +1,40 @@
+// 클로저 + 리스트 HOF 데모 (danhac 부트스트랩 서브셋 검증)
+
+// 글로벌 캡처 없는 직접 접근 (람다 본문에서 글로벌 읽기)
+threshold = 10
+nums = [1, 5, 15, 20, 3, 25]
+big = nums.filter(fn(x: i64) -> bool { return x > threshold })
+print(big.len())
+print(big[0])
+print(big[1])
+print(big[2])
+
+offset = 100
+small = [1, 2, 3]
+shifted = small.map(fn(x: i64) -> i64 { return x + offset })
+print(shifted[0])
+print(shifted[1])
+print(shifted[2])
+
+bonus = 10
+total = small.reduce(0, fn(acc: i64, x: i64) -> i64 { return acc + x + bonus })
+print(total)
+
+c = nums.count(fn(x: i64) -> bool { return x >= 15 })
+print(c)
+print(nums.any(fn(x: i64) -> bool { return x == 20 }))
+print(nums.all(fn(x: i64) -> bool { return x > 0 }))
+
+// 함수 로컬 캡처 (진짜 클로저 경로) + for_each 부수효과
+fn run_each() {
+    local_base = 1000
+    acc2 = [0]
+    [7, 8].for_each(fn(x: i64) { acc2.push(x + local_base) })
+    print(acc2[1])
+    print(acc2[2])
+}
+run_each()
+
+// 변수에 람다 저장 + 호출
+add = fn(a: i64, b: i64) -> i64 { return a + b }
+print(add(2, 3))

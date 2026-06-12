@@ -1,0 +1,6 @@
+// import as 테스트용 모듈
+const ACONST = 77
+
+fn afn(x: i64) -> i64 {
+    return x * 3
+}

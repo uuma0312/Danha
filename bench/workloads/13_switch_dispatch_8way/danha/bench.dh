@@ -1,0 +1,64 @@
+// 8-way enum dispatch — pre-fill 1K-element array, replay outer loop.
+// 50M total dispatches. Stage 67 alloca-hoist fix lets match run in-line
+// without per-iter stack growth.
+
+enum Op {
+    Add(i32)
+    Sub(i32)
+    Mul(i32)
+    Div(i32)
+    Mod(i32)
+    Xor(i32)
+    Shl(i32)
+    Shr(i32)
+}
+
+fn make_op(tag: i32, val: i32) -> Op {
+    if tag == 0 { return Op.Add(val) }
+    if tag == 1 { return Op.Sub(val) }
+    if tag == 2 { return Op.Mul(val) }
+    if tag == 3 { return Op.Div(val) }
+    if tag == 4 { return Op.Mod(val) }
+    if tag == 5 { return Op.Xor(val) }
+    if tag == 6 { return Op.Shl(val) }
+    return Op.Shr(val)
+}
+
+K = 1024
+N_OUTER = 50000
+
+ops: [Op] = []
+state = 2463534242
+i = 0
+while i < K {
+    state = state ^ (state << 13)
+    state = state ^ (state >> 17)
+    state = state ^ (state << 5)
+    tag = state & 7
+    val = (state >> 4) & 31
+    if val == 0 { val = 1 }
+    push(ops, make_op(tag, val))
+    i = i + 1
+}
+
+acc = 7
+outer = 0
+while outer < N_OUTER {
+    j = 0
+    while j < K {
+        o = ops[j]
+        match o {
+            Add(v) => { acc = acc + v }
+            Sub(v) => { acc = acc - v }
+            Mul(v) => { acc = acc * v }
+            Div(v) => { acc = acc / v }
+            Mod(v) => { acc = acc % v }
+            Xor(v) => { acc = acc ^ v }
+            Shl(v) => { acc = acc << (v & 5) }
+            Shr(v) => { acc = acc >> (v & 5) }
+        }
+        j = j + 1
+    }
+    outer = outer + 1
+}
+print(acc)

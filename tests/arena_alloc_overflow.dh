@@ -1,0 +1,6 @@
+a = Arena.new(8)
+print(a.used())
+a.alloc(4)
+print(a.used())
+a.alloc(16)
+print(999)

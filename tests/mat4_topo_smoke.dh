@@ -1,0 +1,58 @@
+// mat4 builtin + ECS 토포 스케줄링 스모크
+v = vec4(1.0, 2.0, 3.0, 1.0)
+
+m = mat4_identity()
+r = m * v
+print(r.x)               // 1
+
+t = mat4_translate(10.0, 20.0, 30.0)
+r2 = t * v
+print(r2.x)              // 11
+print(r2.y)              // 22
+print(r2.z)              // 33
+
+s = mat4_scale(2.0, 3.0, 4.0)
+r3 = s * v
+print(r3.x)              // 2
+print(r3.y)              // 6
+print(r3.z)              // 12
+
+ry = mat4_rotate_y(1.5707963267948966)
+r4 = ry * vec4(1.0, 0.0, 0.0, 0.0)
+print(r4.z)              // -1 (x축 → -z)
+
+mm = t * s
+r5 = mm * v
+print(r5.x)              // 12
+print(r5.y)              // 26
+
+tp = mat4_transpose(t)
+r6 = tp * vec4(1.0, 0.0, 0.0, 0.0)
+print(r6.w)              // 10
+
+inv = mat4_inverse(t)
+r7 = inv * r2
+print(r7.x)              // 1
+print(r7.y)              // 2
+print(r7.z)              // 3
+
+// ── 토포 스케줄링: reader가 먼저 선언돼도 writer가 먼저 실행돼야 함 ──
+component Val {
+    v: f64
+}
+
+system read_sys(dt: f64) {
+    for each (a: &Val) {
+        print(a.v)
+    }
+}
+
+system write_sys(dt: f64) {
+    for each (a: &mut Val) {
+        a.v = a.v + 100.0
+    }
+}
+
+e = spawn()
+add(e, Val { v: 1.0 })
+schedule(0.0)            // 토포면 write 먼저 → read가 101 출력

@@ -1,0 +1,173 @@
+// ari_sprite.dh — Ari 엔진 스프라이트 모듈 (Stage 69)
+//
+// 사용법: import ari_sprite
+//
+// `danha_gl` 위에서 텍스처 로드 + 스프라이트 그리기.
+// 좌표계: 좌상단 (0,0), 우하단 (gl_width, gl_height). 픽셀 단위.
+//
+// 예시:
+//     import danha_gl
+//     import ari_sprite
+//
+//     gl_open(800, 600, "Demo")
+//     player = sprite_load("player.bmp")
+//     while gl_poll() == 1 {
+//         gl_clear(0.1, 0.1, 0.2)
+//         sprite_draw(player, 100.0, 100.0)
+//         gl_swap()
+//     }
+//     gl_close()
+
+import danha_gl
+
+// 텍스처 로드. 실패 시 0 반환.
+fn sprite_load(path: ptr) -> i32 {
+    return gl_texture_load(path)
+}
+
+// 자연 크기로 그리기 (좌상단 (x,y))
+fn sprite_draw(tex: i32, x: f64, y: f64) {
+    w = gl_texture_w(tex) as f64
+    h = gl_texture_h(tex) as f64
+    gl_texture_draw(tex, x, y, w, h, 1.0, 1.0, 1.0, 1.0)
+}
+
+// 스케일 적용
+fn sprite_draw_scaled(tex: i32, x: f64, y: f64, scale: f64) {
+    w = (gl_texture_w(tex) as f64) * scale
+    h = (gl_texture_h(tex) as f64) * scale
+    gl_texture_draw(tex, x, y, w, h, 1.0, 1.0, 1.0, 1.0)
+}
+
+// 임의 크기로 그리기 (스트레치)
+fn sprite_draw_sized(tex: i32, x: f64, y: f64, w: f64, h: f64) {
+    gl_texture_draw(tex, x, y, w, h, 1.0, 1.0, 1.0, 1.0)
+}
+
+// 색상 곱(tint) 적용 — 흑백 텍스처에 색 입히거나 페이드아웃 효과에
+fn sprite_draw_tinted(tex: i32, x: f64, y: f64, scale: f64, r: f64, g: f64, b: f64, a: f64) {
+    w = (gl_texture_w(tex) as f64) * scale
+    h = (gl_texture_h(tex) as f64) * scale
+    gl_texture_draw(tex, x, y, w, h, r, g, b, a)
+}
+
+// 텍스처 아틀라스용 — UV 영역 지정 (0.0~1.0). 한 BMP에 여러 스프라이트 담을 때.
+fn sprite_draw_atlas(tex: i32, x: f64, y: f64, w: f64, h: f64, u0: f64, v0: f64, u1: f64, v1: f64) {
+    gl_texture_draw_uv(tex, x, y, w, h, u0, v0, u1, v1, 1.0, 1.0, 1.0, 1.0)
+}
+
+// ── Stage 79: 배치 렌더링 ──
+// 1000개 sprite를 1 draw call로. begin/end로 감싸고 그 안에서 add를 호출.
+// 텍스처 바뀌면 자동 flush, 4096개 모이면 자동 flush.
+fn sprite_batch_begin() { gl_sprite_begin() }
+fn sprite_batch_end()   { gl_sprite_end() }
+
+// 자연 크기로 batch에 추가
+fn sprite_batch(tex: i32, x: f64, y: f64) {
+    w = gl_texture_w(tex) as f64
+    h = gl_texture_h(tex) as f64
+    gl_sprite_add(tex, x, y, w, h, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+}
+
+// 임의 크기 + tint
+fn sprite_batch_tinted(tex: i32, x: f64, y: f64, w: f64, h: f64, r: f64, g: f64, b: f64, a: f64) {
+    gl_sprite_add(tex, x, y, w, h, 0.0, 0.0, 1.0, 1.0, r, g, b, a)
+}
+
+// 아틀라스 영역 + tint
+fn sprite_batch_atlas(tex: i32, x: f64, y: f64, w: f64, h: f64, u0: f64, v0: f64, u1: f64, v1: f64) {
+    gl_sprite_add(tex, x, y, w, h, u0, v0, u1, v1, 1.0, 1.0, 1.0, 1.0)
+}
+
+// ── Stage 81: 텍스처 아틀라스 ──
+// 여러 BMP를 한 atlas로 합치면 batch에서 다양한 sprite가 1 draw call로.
+//
+// 예시:
+//   atlas = atlas_new(1024, 1024)
+//   player = atlas_add(atlas, "player.bmp")
+//   enemy  = atlas_add(atlas, "enemy.bmp")
+//   bullet = atlas_add(atlas, "bullet.bmp")
+//   atlas_finalize(atlas)
+//   sprite_batch_begin()
+//   sprite_batch_sub(player, px, py)
+//   sprite_batch_sub(enemy,  ex, ey)   // 같은 atlas → flush 안 일어남
+//   sprite_batch_sub(bullet, bx, by)
+//   sprite_batch_end()
+
+fn atlas_new(w: i32, h: i32) -> i32 { return gl_atlas_new(w, h) }
+fn atlas_add(atlas: i32, path: ptr) -> i32 { return gl_atlas_add(atlas, path) }
+fn atlas_finalize(atlas: i32) -> i32 { return gl_atlas_finalize(atlas) }
+
+// sub-sprite 자연 크기로 batch에 추가
+fn sprite_batch_sub(sub: i32, x: f64, y: f64) {
+    w = gl_sub_w(sub) as f64
+    h = gl_sub_h(sub) as f64
+    gl_sprite_add_sub(sub, x, y, w, h, 1.0, 1.0, 1.0, 1.0)
+}
+
+// sub-sprite 크기/색깔 지정
+fn sprite_batch_sub_sized(sub: i32, x: f64, y: f64, w: f64, h: f64, r: f64, g: f64, b: f64, a: f64) {
+    gl_sprite_add_sub(sub, x, y, w, h, r, g, b, a)
+}
+
+// ── Stage 83: 2D primitive batching ──
+// rect는 1x1 흰 텍스처 + tint로 batch에 add. sprite batch가 활성이면 같은 batch.
+// gl_rect immediate mode와 달리 batch에 누적 — sprite_batch_begin/end 사이에 호출.
+
+fn shape_batch_rect(x: f64, y: f64, w: f64, h: f64, r: f64, g: f64, b: f64, a: f64) {
+    gl_sprite_add(gl_texture_white(), x, y, w, h, 0.0, 0.0, 1.0, 1.0, r, g, b, a)
+}
+
+// 두 점 사이 굵기 thick 라인. 축 정렬 사각형으로 근사 (회전 line은 추후).
+// 수평/수직 라인은 정확, 대각선은 bounding box로 그려짐 (단순화).
+fn shape_batch_hline(x: f64, y: f64, w: f64, thick: f64, r: f64, g: f64, b: f64, a: f64) {
+    gl_sprite_add(gl_texture_white(), x, y - thick * 0.5, w, thick, 0.0, 0.0, 1.0, 1.0, r, g, b, a)
+}
+
+fn shape_batch_vline(x: f64, y: f64, h: f64, thick: f64, r: f64, g: f64, b: f64, a: f64) {
+    gl_sprite_add(gl_texture_white(), x - thick * 0.5, y, thick, h, 0.0, 0.0, 1.0, 1.0, r, g, b, a)
+}
+
+// ── Stage 84: 렌더 폭 — 회전, 글로우, 소프트 원형 ──
+//
+// 사용:
+//   soft = gl_texture_soft_circle(64, 1.5)   // 한 번만, cache 됨
+//   sprite_batch_begin()
+//   sprite_batch_glow_on()                   // 입자/광원 구간
+//   sprite_batch_soft(soft, x, y, 32.0, r, g, b, 0.8)
+//   sprite_batch_glow_off()                  // 일반 sprite 구간
+//   sprite_batch(player_tex, px, py)
+//   sprite_batch_end()
+
+fn sprite_batch_glow_on()  { gl_sprite_blend(1) }   // additive
+fn sprite_batch_glow_off() { gl_sprite_blend(0) }   // alpha
+
+// 자연 크기 + 회전. 중심 좌표.
+fn sprite_batch_rot(tex: i32, cx: f64, cy: f64, angle: f64) {
+    w = gl_texture_w(tex) as f64
+    h = gl_texture_h(tex) as f64
+    gl_sprite_add_rot(tex, cx, cy, w, h, angle, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+}
+
+// 회전 + 크기 + tint
+fn sprite_batch_rot_tinted(tex: i32, cx: f64, cy: f64, w: f64, h: f64, angle: f64, r: f64, g: f64, b: f64, a: f64) {
+    gl_sprite_add_rot(tex, cx, cy, w, h, angle, 0.0, 0.0, 1.0, 1.0, r, g, b, a)
+}
+
+// 소프트 원 (그라데이션 텍스처) — 입자/광원/빛 점에. 중심 (cx,cy), 지름 size.
+fn sprite_batch_soft(tex: i32, cx: f64, cy: f64, size: f64, r: f64, g: f64, b: f64, a: f64) {
+    half = size * 0.5
+    gl_sprite_add(tex, cx - half, cy - half, size, size, 0.0, 0.0, 1.0, 1.0, r, g, b, a)
+}
+
+// ── Stage 87: Bloom 후처리 ──
+// 한 줄 패턴:
+//   bloom_init()                                // main 시작 시 한 번
+//   while gl_poll() == 1 {
+//       bloom_begin(); gl_clear(...); sprite_batch...; bloom_end(); gl_swap()
+//   }
+// threshold (0~1) 보다 밝은 픽셀이 번짐. intensity는 번짐 합산 강도.
+fn bloom_init() -> i32 { return gl_bloom_init() }
+fn bloom_tune(threshold: f64, intensity: f64) { gl_bloom_set(threshold, intensity) }
+fn bloom_begin() { gl_bloom_begin() }
+fn bloom_end() { gl_bloom_end() }

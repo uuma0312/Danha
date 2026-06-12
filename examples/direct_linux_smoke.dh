@@ -1,0 +1,20 @@
+// direct-linux 스모크 — raw syscall 런타임 검증 (print/산술/문자열/리스트/파일)
+print("direct-linux smoke start")
+x = 40
+y = 2
+print(x + y)
+print(x > y)
+s = "hello" + " " + "linux"
+print(s)
+xs = [10, 20, 30]
+total = 0
+for v in xs {
+    total = total + v
+}
+print(total)
+file_write("/tmp/danha_dl_smoke.txt", "syscall file io\n")
+if file_exists("/tmp/danha_dl_smoke.txt") {
+    body = file_read("/tmp/danha_dl_smoke.txt")
+    print(body)
+}
+print("direct-linux smoke end")

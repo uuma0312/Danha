@@ -1,0 +1,26 @@
+macro count!(items...) {
+    len(items)
+}
+
+macro sum_all!(items...) {
+    total = 0
+    for i in 0..len(items) {
+        total = total + items[i]
+    }
+    total
+}
+
+macro min_of!(values...) {
+    result = values[0]
+    for i in 1..len(values) {
+        if values[i] < result {
+            result = values[i]
+        }
+    }
+    result
+}
+
+print(count!())
+print(count!(10, 20, 30))
+print(sum_all!(10, 20, 30))
+print(min_of!(5, 3, 8, 1, 9))
