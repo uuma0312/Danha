@@ -34,6 +34,10 @@ last_version_installer/
 *.out
 *.selfhost.txt
 
+# Internal planning notes
+*_PLAN.md
+GITHUB_DOCS_PLAN.md
+
 # Benchmark outputs
 bench/
 bench/build/
